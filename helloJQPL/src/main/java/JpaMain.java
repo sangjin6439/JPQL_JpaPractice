@@ -1,6 +1,7 @@
 
 import jqpl.Member;
 import jqpl.MemberDTO;
+import jqpl.Team;
 
 import javax.persistence.*;
 import java.util.List;
@@ -17,22 +18,26 @@ public class JpaMain {
 
         try {
 
+            Team team = new Team();
+            team.setName("teamA");
+            em.persist(team);
+
             Member member = new Member();
             member.setUsername("상진");
             member.setAge(10);
+
+            member.setTeam(team);
+
+
             em.persist(member);
 
-            List<MemberDTO> result = em.createQuery("select new jqpl.MemberDTO(m.username, m.age) from Member m ", MemberDTO.class)
+           em.flush();
+           em.clear();
+
+           String query ="select m from Member m, Team t where m.username = t.name";
+
+           List<Member> result = em.createQuery(query, Member.class)
                     .getResultList();
-
-            MemberDTO memberDTO = result.get(0);
-            System.out.println("memberDTO = " + memberDTO.getUsername());
-            System.out.println("memberDTO = " + memberDTO.getAge());
-
-            /* Member result = em.createQuery("select m from Member m where m.username = ?1", Member.class)
-                    .setParameter("username","member1")
-                    .getSingleResult();*/
-
 
 
             tx.commit();

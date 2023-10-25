@@ -7,6 +7,7 @@ import javax.persistence.*;
 import java.util.List;
 
 public class JpaMain {
+    
 
     public static void main(String[] args) {
         EntityManagerFactory emf = Persistence.createEntityManagerFactory("hello");
@@ -16,29 +17,43 @@ public class JpaMain {
         EntityTransaction tx = em.getTransaction();
         tx.begin();
 
+
         try {
 
-            Team team = new Team();
-            team.setName("teamA");
-            em.persist(team);
+            Team teamA = new Team();
+            teamA.setName("teamA");
+            em.persist(teamA);
 
-            Member member = new Member();
-            member.setUsername("상진");
-            member.setAge(10);
+            Team teamB = new Team();
+            teamB.setName("teamB");
+            em.persist(teamB);
 
-            member.setTeam(team);
+            Member member1 = new Member();
+            member1.setUsername("상진");
+            member1.setTeam(teamA);
+            em.persist(member1);
 
+            Member member2 = new Member();
+            member2.setUsername("상진1");
+            member2.setTeam(teamA);
+            em.persist(member2);
 
-            em.persist(member);
+            Member member3 = new Member();
+            member3.setUsername("상진2");
+            member3.setTeam(teamB);
+            em.persist(member3);
 
            em.flush();
            em.clear();
 
-           String query ="select m from Member m, Team t where m.username = t.name";
+           String query ="select t From Team t join fetch t.member";
 
-           List<Member> result = em.createQuery(query, Member.class)
-                    .getResultList();
+           List<Team> result = em.createQuery(query, Team.class)
+                           .getResultList();
 
+           for (Team team : result){
+               System.out.println("team = " + team.getName() + " | members =" + team.getMember().size());
+           }
 
             tx.commit();
         }catch (Exception e){
